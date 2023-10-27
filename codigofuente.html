@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Código Fuente</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Medidor de distancia ultrasónico</h1>
+        <nav id="menu">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="materiales.html">Materiales</a></li>
+                <li><a href="codigofuente.html">Código Fuente</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <pre>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Dirección del LCD y dimensiones (16x2)
+
+const int trigPin = 9;
+const int echoPin = 10;
+const int ledPin = 13; // Pin 13 para el LED
+const int groundPin = 12; // Pin donde conectaste el cátodo de los tres LEDs
+const int buzzerPin = 8; // Pin para el zumbador o la bocina
+
+void setup() {
+  lcd.init(); // Inicializa el LCD
+  lcd.backlight(); // Enciende la retroiluminación del LCD
+  lcd.clear(); // Borra la pantalla LCD
+
+  Serial.begin(9600);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(ledPin, OUTPUT); // Configura el pin del LED como salida
+  pinMode(groundPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT); // Configura el pin del zumbador como salida
+}
+
+void loop() {
+  // Medir la distancia utilizando el sensor HC-SR04
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH);
+  int distance = duration * 0.034 / 2; // Calcula la distancia en centímetros
+
+  // Muestra la distancia en el LCD
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Distancia:");
+  lcd.setCursor(0, 1);
+  lcd.print(distance);
+  lcd.print(" cm");
+
+  // Muestra la distancia en el monitor serial
+  Serial.print("Distancia: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  if (distance >= 10 && distance <= 20) {
+    digitalWrite(ledPin, HIGH); // Enciende el LED conectado al pin 13
+    tone(buzzerPin, 2000); // Activa el zumbador o la bocina a una frecuencia de 2000 Hz 
+  } else {
+    digitalWrite(ledPin, LOW); // Apaga el LED en el pin 13
+    noTone(buzzerPin); // Detiene el zumbido del zumbador o la bocina
+  }
+
+  delay(1000); // Espera un segundo antes de la próxima medición
+}
+            </pre>
+        </section>
+    </main>
+</body>
+</html>
